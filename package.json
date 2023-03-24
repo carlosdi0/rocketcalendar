@@ -1,0 +1,12 @@
+{
+  "name": "rocketcalendar",
+  "version": "0.0.1",
+  "description": "Not another modern calendar package developed with Typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
