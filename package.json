@@ -7,7 +7,8 @@
     "lib/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc ./src/index.ts --outDir ./lib",
+    "playground": "tsc ./playground/src/playground.ts --outDir ./playground/dist",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
