@@ -1,14 +1,15 @@
 {
   "name": "rocketcalendar",
   "version": "0.0.1",
+  "type": "module",
   "description": "Not another modern datepicker package developed with Typescript",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
-    "build": "tsc ./src/index.ts --outDir ./lib",
-    "playground": "tsc ./playground/src/playground.ts --outDir ./playground/dist",
+    "build": "tsc",
+    "start": "tsc --watch",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
@@ -29,9 +30,9 @@
     "url": "https://github.com/carlosdi0/rocketcalendar"
   },
   "devDependencies": {
-    "prettier": "^2.8.7",
-    "tslint": "^6.1.3",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^5.0.2"
+    "prettier": "2.8.7",
+    "tslint": "6.1.3",
+    "tslint-config-prettier": "1.18.0",
+    "typescript": "5.0.2"
   }
 }
