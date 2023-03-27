@@ -1,6 +1,6 @@
 {
   "name": "rocketcalendar",
-  "version": "0.0.3",
+  "version": "0.0.31",
   "type": "module",
   "description": "Not another modern datepicker package developed with Typescript",
   "main": "lib/index.js",
