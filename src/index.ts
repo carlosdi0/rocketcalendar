@@ -42,8 +42,10 @@ class RocketCalendar {
 
   init = async () => {
     if (this.options.locale && this.options.locale !== 'en') {
-      const locale = await import(`./locales/${this.options.locale}`)
-      this.locale = { ...locale }
+      const localeImported: Locale = await import(
+        `./locales/${this.options.locale}`
+      )
+      if (localeImported) this.locale = { ...localeImported }
     }
     if (this.input.value) this.selectedDate = new Date(this.input.value)
     this.subscribeInputEvents()
