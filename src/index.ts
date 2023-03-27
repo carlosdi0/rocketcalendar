@@ -6,7 +6,7 @@ class RocketCalendar {
   private _selectedDate: Date | undefined
   private today: Date = new Date()
   private calendarComponent: HTMLElement | undefined
-
+  private container: HTMLElement
   public locale: Locale
   public options: Options
   public input: HTMLInputElement
@@ -16,7 +16,13 @@ class RocketCalendar {
   constructor(element: HTMLInputElement, options: Options) {
     this.input = element
     this.options = options
-    this.locale = locale
+    this.locale = { ...locale }
+    const calendarDate = this.selectedDate || this.today
+    const month = calendarDate.getMonth()
+    const year = calendarDate.getFullYear()
+    this.container = this.wrapElement(this.input)
+    this.renderStyles()
+    this.renderCalendar(month, year)
     this.init()
   }
 
@@ -27,20 +33,92 @@ class RocketCalendar {
   set selectedDate(value: Date | undefined) {
     this._selectedDate = value
     this.printValue()
+    if (value) {
+      const month = value.getMonth()
+      const year = value.getFullYear()
+      this.renderCalendar(month, year)
+    }
   }
 
   init = async () => {
     if (this.options.locale && this.options.locale !== 'en') {
-      this.locale = await import(`./locales/${this.options.locale}`)
+      const locale = await import(`./locales/${this.options.locale}`)
+      this.locale = { ...locale }
     }
     if (this.input.value) this.selectedDate = new Date(this.input.value)
     this.subscribeInputEvents()
-    const calendarDate = this.selectedDate || this.today
-    const month = calendarDate.getMonth()
-    const year = calendarDate.getFullYear()
-    this.renderCalendar(month, year)
   }
 
+  renderStyles = () => {
+    const style = document.createElement('style')
+    style.innerHTML = `
+    .calendar {
+      width: fit-content;
+      max-width: 100%;
+      border: 1px solid;
+    }
+
+    .calendar__header {
+      border-bottom: 1px solid;
+      text-align: center;
+    }
+
+    .calendar__week-days {
+      border-bottom: 1px solid;
+    }
+
+    .calendar__week-days,
+    .calendar__days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    .calendar__week-day,
+    .calendar__day {
+      text-align: center;
+    }
+
+    .calendar__day:not(.calendar__day--is-disabled) {
+      cursor: pointer;
+    }
+
+    .calendar__day--is-today {
+      background-color: #8e8e8e;
+      color: #fff;
+    }
+
+    .calendar__day--is-disabled {
+      color: #ccc;
+      pointer-events: none;
+    }
+
+    .calendar__day--is-selected {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .calendar__day:not(.calendar__day--is-disabled):hover {
+      background-color: #eee;
+      color: #000;
+    }
+
+    .calendar:not(.calendar--is-opened) {
+      display: none;
+    }
+    `
+    document.head.appendChild(style)
+  }
+
+  // method that wrap selected html element with a div
+  wrapElement = (element: HTMLElement): HTMLElement => {
+    const wrapper = document.createElement('div')
+    wrapper.classList.add('rocket-calendar')
+    element.parentNode?.insertBefore(wrapper, element)
+    wrapper.appendChild(element)
+    return wrapper
+  }
+
+  // method that print the selected date in the input with specific format
   printValue = () => {
     if (this.selectedDate) {
       if (this.options.type === 'time') {
@@ -74,8 +152,10 @@ class RocketCalendar {
 
   // method to render the calendar
   renderCalendar = (month: number, year: number) => {
+    this.calendarComponent?.remove()
+    this.calendarComponent = undefined
     this.calendarComponent = this.generateCalendar(month, year)
-    document.body.appendChild(this.calendarComponent)
+    this.container.appendChild(this.calendarComponent)
   }
 
   // method to generate the calendar
@@ -181,7 +261,15 @@ class RocketCalendar {
   // method to subscribe the events of the input
   subscribeInputEvents = () => {
     this.input.addEventListener('focus', () => (this.isOpened = true))
-    // this.input.addEventListener('blur', () => (this.isOpened = false))
+    document.addEventListener('click', (event) => {
+      if (
+        this.input.contains(event.target as Node) ||
+        this.calendarComponent?.contains(event.target as Node)
+      ) {
+        return
+      }
+      this.isOpened = false
+    })
   }
 
   // method to get the state of the calendar
