@@ -10,7 +10,7 @@ class RocketCalendar {
   public locale: Locale
   public options: Options
   public input: HTMLInputElement
-  public disabledDates: Date[] = [new Date(2023, 2, 5)]
+  public disabledDates: Date[] = []
 
   // constructor of the class that receive the input and the options
   constructor(element: HTMLInputElement, options: Options) {
@@ -63,10 +63,19 @@ class RocketCalendar {
     .calendar__header {
       border-bottom: 1px solid;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
     }
 
     .calendar__week-days {
       border-bottom: 1px solid;
+    }
+
+    .calendar__prev-month, .calendar__next-month {
+      padding: 5px;
+      cursor: pointer;
     }
 
     .calendar__week-days,
@@ -154,10 +163,30 @@ class RocketCalendar {
 
   // method to render the calendar
   renderCalendar = (month: number, year: number) => {
-    this.calendarComponent?.remove()
-    this.calendarComponent = undefined
-    this.calendarComponent = this.generateCalendar(month, year)
-    this.container.appendChild(this.calendarComponent)
+    if (!this.calendarComponent) {
+      this.calendarComponent = this.generateCalendar(month, year)
+      this.container.appendChild(this.calendarComponent)
+    } else {
+      this.updateCalendar(month, year)
+    }
+  }
+
+  // method that update content of calendar
+  updateCalendar = (month: number, year: number) => {
+    const header = this.calendarComponent?.querySelector(
+      '.calendar__header'
+    ) as HTMLElement
+    const body = this.calendarComponent?.querySelector(
+      '.calendar__body'
+    ) as HTMLElement
+    header.innerHTML = ''
+    body.innerHTML = ''
+    Array.from(this.generateHeader(month, year).children).forEach((node) =>
+      header.append(node)
+    )
+    Array.from(this.generateBody(month, year).children).forEach((node) =>
+      body.append(node)
+    )
   }
 
   // method to generate the calendar
@@ -174,10 +203,30 @@ class RocketCalendar {
   generateHeader = (month: number, year: number): HTMLElement => {
     const header = document.createElement('div')
     header.classList.add('calendar__header')
+    const prevMonth = document.createElement('div')
+    prevMonth.classList.add('calendar__prev-month')
+    prevMonth.innerText = '<'
+    prevMonth.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const prevMonth = month - 1
+      const prevYear = prevMonth < 0 ? year - 1 : year
+      this.updateCalendar(prevMonth, prevYear)
+    })
+    header.appendChild(prevMonth)
     const monthName = document.createElement('div')
     monthName.classList.add('calendar__month-name')
     monthName.innerText = `${this.locale.months[month]} ${year}`
     header.appendChild(monthName)
+    const nextMonth = document.createElement('div')
+    nextMonth.classList.add('calendar__next-month')
+    nextMonth.innerText = '>'
+    nextMonth.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const nextMonth = month + 1
+      const nextYear = nextMonth > 11 ? year + 1 : year
+      this.updateCalendar(nextMonth, nextYear)
+    })
+    header.appendChild(nextMonth)
     return header
   }
 
@@ -226,8 +275,10 @@ class RocketCalendar {
         if (isSelected) day.classList.add('calendar__day--is-selected')
         if (isDisabled) day.classList.add('calendar__day--is-disabled')
         if (!isSelected && !isDisabled)
-          day.addEventListener('click', () => {
+          day.addEventListener('click', (e) => {
+            e.stopPropagation()
             this.selectedDate = dayDate
+            this.isOpened = false
           })
         monthDay++
       } else {
@@ -262,15 +313,14 @@ class RocketCalendar {
 
   // method to subscribe the events of the input
   subscribeInputEvents = () => {
-    this.input.addEventListener('focus', () => (this.isOpened = true))
-    document.addEventListener('click', (event) => {
-      if (
-        this.input.contains(event.target as Node) ||
-        this.calendarComponent?.contains(event.target as Node)
-      ) {
-        return
+    this.input.addEventListener('focus', (e) => {
+      this.isOpened = true
+    })
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.calendar') && target !== this.input) {
+        this.isOpened = false
       }
-      this.isOpened = false
     })
   }
 
