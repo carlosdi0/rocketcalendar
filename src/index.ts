@@ -203,30 +203,30 @@ class RocketCalendar {
   generateHeader = (month: number, year: number): HTMLElement => {
     const header = document.createElement('div')
     header.classList.add('calendar__header')
-    const prevMonth = document.createElement('div')
-    prevMonth.classList.add('calendar__prev-month')
-    prevMonth.innerText = '<'
-    prevMonth.addEventListener('click', (e) => {
+    const prevMonthBtn = document.createElement('div')
+    prevMonthBtn.classList.add('calendar__prev-month')
+    prevMonthBtn.innerText = '<'
+    prevMonthBtn.addEventListener('click', (e) => {
       e.stopPropagation()
       const prevMonth = month - 1
       const prevYear = prevMonth < 0 ? year - 1 : year
       this.updateCalendar(prevMonth, prevYear)
     })
-    header.appendChild(prevMonth)
+    header.appendChild(prevMonthBtn)
     const monthName = document.createElement('div')
     monthName.classList.add('calendar__month-name')
     monthName.innerText = `${this.locale.months[month]} ${year}`
     header.appendChild(monthName)
-    const nextMonth = document.createElement('div')
-    nextMonth.classList.add('calendar__next-month')
-    nextMonth.innerText = '>'
-    nextMonth.addEventListener('click', (e) => {
+    const nextMonthBtn = document.createElement('div')
+    nextMonthBtn.classList.add('calendar__next-month')
+    nextMonthBtn.innerText = '>'
+    nextMonthBtn.addEventListener('click', (e) => {
       e.stopPropagation()
       const nextMonth = month + 1
       const nextYear = nextMonth > 11 ? year + 1 : year
       this.updateCalendar(nextMonth, nextYear)
     })
-    header.appendChild(nextMonth)
+    header.appendChild(nextMonthBtn)
     return header
   }
 
